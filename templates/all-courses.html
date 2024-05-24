@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+  <title>Все курсы</title>
+{% endblock %}
+
+{% block buttons %}
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2 class="text-center"> Все курсы </h2>
+
+    <div class="input-group mt-3 mb-3">
+      <a href="/view-profiles" class="btn btn-primary">Посмотреть профили</a>
+    </div>
+
+    <div id="output" class="mt-4"></div>
+
+    <div class="modal fade" id="courseDetailModal" tabindex="-1" aria-labelledby="courseDetailModal" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="courseDetailModalLabel">Информация о курсе</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <!-- The content gets populated dynamically via JavaScript -->
+          </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const output = document.getElementById('output');
+          const profileModal = new bootstrap.Modal(document.getElementById('courseDetailModal'), {keyboard: true});
+          const escapeHtml = (unsafe) => {
+              return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+          }
+
+          fetch('/courses', {
+              method: 'GET',
+          })
+              .then(response => response.json())
+              .then(data => {
+                  output.innerHTML = data.length ? data.map(item => `
+                <div class="d-flex justify-content-between align-items-center">
+                  <p style="cursor: pointer;" onClick="showTitleDetails(${escapeHtml(JSON.stringify(item))})">${item.title}</p>
+                </div>
+              `).join('') : '<p>No results found.</p>';
+              }).catch(() => {
+              output.innerHTML = 'An error occurred!';
+          });
+
+          window.showTitleDetails = function (item) {
+              const modalBody = document.querySelector('#courseDetailModal .modal-body');
+              modalBody.innerHTML = `
+                <div class="text-left"> <!-- Added text-left class here for alignment -->
+                  <p><strong>Название:</strong> ${item.title}</p>
+                  <p><strong>Описание:</strong> ${item.description}</p>
+                </div>
+              `;
+              profileModal.show();
+          };
+          
+      });
+  </script>
+{% endblock %}

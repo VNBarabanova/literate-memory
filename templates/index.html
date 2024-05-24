@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Главная страница</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2>Внедрение автоматизации учёта анкет слушателей программ дополнительного образования</h2>
+    <p class="lead">
+        С помощью этой системы пользователь сможет создавать, а также просматривать, на какие курсы записаны слушатели.
+    </p>
+    
+    <div class="mt-3">
+        <div class="mt-3">
+            <a href="/view-profiles" class="btn btn-primary">Посмотреть анкеты слушателей</a>
+            <a href="/view-courses" class="btn btn-primary">Посмотреть все курсы</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

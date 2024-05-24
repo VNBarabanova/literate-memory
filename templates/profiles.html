@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}
+  <title>Профили слушателей</title>
+{% endblock %}
+
+{% block buttons %}
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2 class="text-center"> Профили слушателей </h2>
+
+    <div class="input-group mt-3 mb-3">
+      <a href="/create-profile" class="btn btn-primary">Создать новый профиль</a>
+    </div>
+
+    <div id="output" class="mt-4"></div>
+      <div class="modal fade" id="profileDetailModal" tabindex="-1" aria-labelledby="profileDetailModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="profileDetailModalLabel">Данные слушателя</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+            <!-- The content gets populated dynamically via JavaScript -->
+            </div>
+          </div>
+        </div>
+
+      <div class="modal fade" id="addCoursesModal" tabindex="-1" aria-labelledby="addCoursesModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addCoursesModalLabel">Добавить пользователя на курсы:</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+            <!-- The content gets populated dynamically via JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const searchBtn = document.getElementById('searchBtn');
+          const output = document.getElementById('output');
+          const profileModal = new bootstrap.Modal(document.getElementById('profileDetailModal'), {keyboard: true});
+          const escapeHtml = (unsafe) => {
+              return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+          }
+
+          fetch('/profiles', {
+              method: 'GET',
+          })
+              .then(response => response.json())
+              .then(data => {
+                  output.innerHTML = data.length ? data.map(item => `
+                <div class="d-flex justify-content-between align-items-center">
+                  <p style="cursor: pointer;" onClick="showTitleDetails(${escapeHtml(JSON.stringify(item))})">${item.username}</p>
+                </div>
+              `).join('') : '<p>No results found.</p>';
+              }).catch(() => {
+              output.innerHTML = 'An error occurred!';
+          });
+
+          window.showTitleDetails = function (item) {
+              const modalBody = document.querySelector('#profileDetailModal .modal-body');
+              if (item.patronymic == null) item.patronymic = "";
+              modalBody.innerHTML = `
+                <div class="text-left"> <!-- Added text-left class here for alignment -->
+                  <p><strong>Логин:</strong> ${item.username}</p>
+                  <p><strong>Почта:</strong> ${item.email}</p>
+                  <p><strong>ФИО:</strong> ${item.name} ${item.surname} ${item.patronymic}</p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <a href="/add-course/${item.id}" class="btn btn-primary">Добавить курсы</a>
+                </div>
+              `;
+              profileModal.show();
+          };
+          
+      });
+  </script>
+{% endblock %}
